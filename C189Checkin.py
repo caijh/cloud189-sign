@@ -115,11 +115,9 @@ def login(username, password):
     url = "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/redirect.html"
     r = s.get(url)
     captchaToken = ""
-    lt = re.findall(r'lt = "(.+?)"', r.text)[0]
     returnUrl = re.findall(r"returnUrl = '(.+?)'", r.text)[0]
     paramId = re.findall(r'paramId = "(.+?)"', r.text)[0]
     j_rsakey = re.findall(r'j_rsaKey" value="(\S+)"', r.text, re.M)[0]
-    s.headers.update({"lt": lt})
 
     username = rsa_encode(j_rsakey, username)
     password = rsa_encode(j_rsakey, password)
