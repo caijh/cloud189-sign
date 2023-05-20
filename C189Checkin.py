@@ -2,77 +2,84 @@ import requests, time, re, rsa, json, base64
 from urllib import parse
 
 s = requests.Session()
+ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0"
 
 username = ""
 password = ""
 
 if username == "" or password == "":
     username = input("账号：")
-   # print(username[:3] + '****' + username[7:])
     password = input("密码：")
+
 
 def main():
     msg = login(username, password)
-    if(msg == "error"):
+    if msg == "error":
         return None
     else:
         pass
-    rand = str(round(time.time()*1000))
+    rand = str(round(time.time() * 1000))
     surl = f'https://api.cloud.189.cn/mkt/userSign.action?rand={rand}&clientType=TELEANDROID&version=8.6.3&model=SM-G930K'
     url = f'https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN&activityId=ACT_SIGNIN'
     url2 = f'https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN_PHOTOS&activityId=ACT_SIGNIN'
     headers = {
-        'User-Agent':'Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6',
-        "Referer" : "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1",
-        "Host" : "m.cloud.189.cn",
-        "Accept-Encoding" : "gzip, deflate",
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6',
+        "Referer": "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1",
+        "Host": "m.cloud.189.cn",
+        "Accept-Encoding": "gzip, deflate",
     }
-    #签到
-    response = s.get(surl,headers=headers)
+    # 签到
+    response = s.get(surl, headers=headers)
     netdiskBonus = response.json()['netdiskBonus']
     print(f"签到获得{netdiskBonus}M空间")
     headers = {
-        'User-Agent':'Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6',
-        "Referer" : "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1",
-        "Host" : "m.cloud.189.cn",
-        "Accept-Encoding" : "gzip, deflate",
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6',
+        "Referer": "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1",
+        "Host": "m.cloud.189.cn",
+        "Accept-Encoding": "gzip, deflate",
     }
-    #第一次抽奖
-    response = s.get(url,headers=headers)
+    # 第一次抽奖
+    response = s.get(url, headers=headers)
     if ("prizeName" in response.text):
-        #description = response.json()['description']
-        #print(f"抽奖获得{description}")
+        # description = response.json()['description']
+        # print(f"抽奖获得{description}")
         prizeName = response.json()['prizeName']
         print(f"抽奖获得{prizeName}")
     else:
         try:
-            if(response.json()['errorCode'] == "User_Not_Chance"):
+            if (response.json()['errorCode'] == "User_Not_Chance"):
                 print("抽奖次数不足")
             else:
                 print(response.text)
         except:
-                print(str(response.status_code) + response.text)
-    #第二次抽奖
-    response = s.get(url2,headers=headers)
+            print(str(response.status_code) + response.text)
+    # 第二次抽奖
+    response = s.get(url2, headers=headers)
     if ("prizeName" in response.text):
-        #description = response.json()['description']
-        #print(f"抽奖获得{description}")
+        # description = response.json()['description']
+        # print(f"抽奖获得{description}")
         prizeName = response.json()['prizeName']
         print(f"抽奖获得{prizeName}")
     else:
         try:
-            if(response.json()['errorCode'] == "User_Not_Chance"):
+            if (response.json()['errorCode'] == "User_Not_Chance"):
                 print("抽奖次数不足")
             else:
                 print(response.text)
         except:
-                print(str(response.status_code) + response.text)
+            print(str(response.status_code) + response.text)
+
 
 BI_RM = list("0123456789abcdefghijklmnopqrstuvwxyz")
+
+
 def int2char(a):
     return BI_RM[a]
 
+
 b64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+
 def b64tohex(a):
     d = ""
     e = 0
@@ -108,37 +115,87 @@ def rsa_encode(j_rsakey, string):
     result = b64tohex((base64.b64encode(rsa.encrypt(f'{string}'.encode(), pubkey))).decode())
     return result
 
-def calculate_md5_sign(params):
-    return hashlib.md5('&'.join(sorted(params.split('&'))).encode('utf-8')).hexdigest()
 
-def login(username, password):
-    url = "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/redirect.html"
-    r = s.get(url)
-    captchaToken = ""
-    returnUrl = re.findall(r"returnUrl = '(.+?)'", r.text)[0]
-    paramId = re.findall(r'paramId = "(.+?)"', r.text)[0]
-    j_rsakey = re.findall(r'j_rsaKey" value="(\S+)"', r.text, re.M)[0]
-
-    username = rsa_encode(j_rsakey, username)
-    password = rsa_encode(j_rsakey, password)
-    url = "https://open.e.189.cn/api/logbox/oauth2/loginSubmit.do"
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0',
-        'Referer': 'https://open.e.189.cn/',
-        }
+def get_encrypt():
+    url = "https://open.e.189.cn/api/logbox/config/encryptConf.do"
     data = {
         "appKey": "cloud",
-        "accountType": '01',
-        "userName": f"{{RSA}}{username}",
-        "password": f"{{RSA}}{password}",
+        "version": "2.0"
+    }
+    r = s.post(url, data, None, timeout=5)
+    if r.json()['result'] == 0:
+        print(r.json()['data'])
+    else:
+        print(r.json()['msg'])
+        return "error"
+
+
+def load_app_conf(r):
+    global g_conf
+    g_conf["lt"] = re.findall(r"lt=([a-zA-Z0-9]+)", r.url)[0]
+    g_conf["reqId"] = re.findall(r"reqId=([a-zA-Z0-9]+)", r.url)[0]
+
+    r = s.post(
+        "https://open.e.189.cn/api/logbox/oauth2/appConf.do",
+        data={
+            "version": "2.0",
+            "appKey": "cloud",
+        },
+        headers={
+            "referer": f"https://open.e.189.cn/api/logbox/separate/web/index.html?appId=cloud&lt={g_conf['lt']}&reqId={g_conf['reqId']}",
+            "lt": g_conf["lt"],
+            "reqid": g_conf["reqId"],
+            "origin": "https://open.e.189.cn",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6",
+        },
+    ).json()
+    g_conf.update(r["data"])
+
+
+def load_rsa_key():
+    global g_conf
+    r = s.post(
+        "https://open.e.189.cn/api/logbox/config/encryptConf.do", {"appId": "cloud"}
+    ).json()
+    g_conf["pubKey"] = r["data"]["pubKey"]
+
+
+def login(username, password):
+    url = "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/redirect.html?returnURL=/main.action"
+    r = s.get(url)
+
+    load_app_conf(r)
+
+    load_rsa_key()
+    j_rsakey = g_conf['pubkey']
+    username = rsa_encode(j_rsakey, username)
+    password = rsa_encode(j_rsakey, password)
+
+    url = "https://open.e.189.cn/api/logbox/oauth2/loginSubmit.do"
+    headers = {
+        "User-Agent": ua,
+        "Referer": "https://open.e.189.cn/",
+        "lt": g_conf["lt"],
+        "REQID": g_conf["reqId"]
+    }
+    data = {
+        "appKey": "cloud",
+        "accountType": "01",
+        "version": "2.0",
+        "userName": f"{{NRP}}{username}",
+        "password": f"{{NRP}}{password}",
         "validateCode": "",
-        "captchaToken": captchaToken,
-        "returnUrl": returnUrl,
-        "mailSuffix": "@189.cn",
-        "paramId": paramId
-        }
+        "captchaToken": "",
+        "returnUrl": g_conf["returnUrl"],
+        "mailSuffix": g_conf["mailSuffix"],
+        "paramId": g_conf["paramId"],
+        "dynamicCheck": "FALSE",
+        "clientType": "1",
+        "cb_SaveName": "0",
+        "isOauth2": False,
+    }
     r = s.post(url, data=data, headers=headers, timeout=5)
-    if(r.json()['result'] == 0):
+    if r.json()['result'] == 0:
         print(r.json()['msg'])
     else:
         print(r.json()['msg'])
@@ -146,6 +203,7 @@ def login(username, password):
     redirect_url = r.json()['toUrl']
     r = s.get(redirect_url)
     return s
+
 
 if __name__ == "__main__":
     main()
