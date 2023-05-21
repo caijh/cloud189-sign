@@ -6,6 +6,7 @@ ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/
 
 username = ""
 password = ""
+g_conf = {}
 
 if username == "" or password == "":
     username = input("账号：")
@@ -109,7 +110,9 @@ def b64tohex(a):
     return d
 
 
-def rsa_encode(j_rsakey, string):
+def rsa_encode(string):
+    global g_conf
+    j_rsakey = g_conf['pubkey']
     rsa_key = f"-----BEGIN PUBLIC KEY-----\n{j_rsakey}\n-----END PUBLIC KEY-----"
     pubkey = rsa.PublicKey.load_pkcs1_openssl_pem(rsa_key.encode())
     result = b64tohex((base64.b64encode(rsa.encrypt(f'{string}'.encode(), pubkey))).decode())
@@ -167,9 +170,8 @@ def login(username, password):
     load_app_conf(r)
 
     load_rsa_key()
-    j_rsakey = g_conf['pubkey']
-    username = rsa_encode(j_rsakey, username)
-    password = rsa_encode(j_rsakey, password)
+    username = rsa_encode(username)
+    password = rsa_encode(password)
 
     url = "https://open.e.189.cn/api/logbox/oauth2/loginSubmit.do"
     headers = {
