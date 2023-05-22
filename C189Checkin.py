@@ -112,7 +112,7 @@ def b64tohex(a):
 
 def rsa_encode(string):
     global g_conf
-    j_rsakey = g_conf['pubkey']
+    j_rsakey = g_conf['pubKey']
     rsa_key = f"-----BEGIN PUBLIC KEY-----\n{j_rsakey}\n-----END PUBLIC KEY-----"
     pubkey = rsa.PublicKey.load_pkcs1_openssl_pem(rsa_key.encode())
     result = b64tohex((base64.b64encode(rsa.encrypt(f'{string}'.encode(), pubkey))).decode())
