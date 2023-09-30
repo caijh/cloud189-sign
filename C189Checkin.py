@@ -3,6 +3,12 @@ import re
 import requests
 import rsa
 import time
+import argparse
+
+argParser = argparse.ArgumentParser()
+argParser.add_argument("--username", help="username")
+argParser.add_argument("--password", help="password")
+args = vars(argParser.parse_args())
 
 s = requests.Session()
 ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0"
@@ -11,9 +17,17 @@ username = ""
 password = ""
 g_conf = {}
 
+
+def get_input(name, txt):
+    if args[name]:
+        return args[name]
+    else:
+        input(txt)
+
+
 if username == "" or password == "":
-    username = input("账号：")
-    password = input("密码：")
+    username = get_input("username", "账号：")
+    password = get_input("password", "密码：")
 
 
 def main():
