@@ -1,5 +1,8 @@
-import requests, time, re, rsa, json, base64
-from urllib import parse
+import base64
+import re
+import requests
+import rsa
+import time
 
 s = requests.Session()
 ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0"
@@ -20,7 +23,7 @@ def main():
     else:
         pass
     rand = str(round(time.time() * 1000))
-    surl = f'https://api.cloud.189.cn/mkt/userSign.action?rand={rand}&clientType=TELEANDROID&version=8.6.3&model=SM-G930K'
+    sign_url = f'https://api.cloud.189.cn/mkt/userSign.action?rand={rand}&clientType=TELEANDROID&version=8.6.3&model=SM-G930K'
     url = f'https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN&activityId=ACT_SIGNIN'
     url2 = f'https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN_PHOTOS&activityId=ACT_SIGNIN'
     headers = {
@@ -30,9 +33,9 @@ def main():
         "Accept-Encoding": "gzip, deflate",
     }
     # 签到
-    response = s.get(surl, headers=headers)
-    netdiskBonus = response.json()['netdiskBonus']
-    print(f"签到获得{netdiskBonus}M空间")
+    response = s.get(sign_url, headers=headers)
+    net_disk_bonus = response.json()['netdiskBonus']
+    print(f"签到获得{net_disk_bonus}M空间")
     headers = {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6',
         "Referer": "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1",
@@ -41,29 +44,19 @@ def main():
     }
     # 第一次抽奖
     response = s.get(url, headers=headers)
-    if ("prizeName" in response.text):
-        # description = response.json()['description']
-        # print(f"抽奖获得{description}")
-        prizeName = response.json()['prizeName']
-        print(f"抽奖获得{prizeName}")
-    else:
-        try:
-            if (response.json()['errorCode'] == "User_Not_Chance"):
-                print("抽奖次数不足")
-            else:
-                print(response.text)
-        except:
-            print(str(response.status_code) + response.text)
+    print_prize_name(response)
     # 第二次抽奖
     response = s.get(url2, headers=headers)
-    if ("prizeName" in response.text):
-        # description = response.json()['description']
-        # print(f"抽奖获得{description}")
-        prizeName = response.json()['prizeName']
-        print(f"抽奖获得{prizeName}")
+    print_prize_name(response)
+
+
+def print_prize_name(response):
+    if "prizeName" in response.text:
+        prize_name = response.json()['prizeName']
+        print(f"抽奖获得{prize_name}")
     else:
         try:
-            if (response.json()['errorCode'] == "User_Not_Chance"):
+            if response.json()['errorCode'] == "User_Not_Chance":
                 print("抽奖次数不足")
             else:
                 print(response.text)
@@ -81,7 +74,7 @@ def int2char(a):
 b64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
 
-def b64tohex(a):
+def b64_to_hex(a):
     d = ""
     e = 0
     c = 0
@@ -112,10 +105,10 @@ def b64tohex(a):
 
 def rsa_encode(string):
     global g_conf
-    j_rsakey = g_conf['pubKey']
-    rsa_key = f"-----BEGIN PUBLIC KEY-----\n{j_rsakey}\n-----END PUBLIC KEY-----"
+    j_rsa_key = g_conf['pubKey']
+    rsa_key = f"-----BEGIN PUBLIC KEY-----\n{j_rsa_key}\n-----END PUBLIC KEY-----"
     pubkey = rsa.PublicKey.load_pkcs1_openssl_pem(rsa_key.encode())
-    result = b64tohex((base64.b64encode(rsa.encrypt(f'{string}'.encode(), pubkey))).decode())
+    result = b64_to_hex((base64.b64encode(rsa.encrypt(f'{string}'.encode(), pubkey))).decode())
     return result
 
 
@@ -170,8 +163,8 @@ def login(username, password):
     load_app_conf(r)
 
     load_rsa_key()
-    username = rsa_encode(username)
-    password = rsa_encode(password)
+    _username = rsa_encode(username)
+    _password = rsa_encode(password)
 
     url = "https://open.e.189.cn/api/logbox/oauth2/loginSubmit.do"
     headers = {
@@ -184,8 +177,8 @@ def login(username, password):
         "appKey": "cloud",
         "accountType": "01",
         "version": "2.0",
-        "userName": f"{{NRP}}{username}",
-        "password": f"{{NRP}}{password}",
+        "userName": f"{{NRP}}{_username}",
+        "password": f"{{NRP}}{_password}",
         "validateCode": "",
         "captchaToken": "",
         "returnUrl": g_conf["returnUrl"],
