@@ -5,10 +5,10 @@ import rsa
 import time
 import argparse
 
-argParser = argparse.ArgumentParser()
-argParser.add_argument("--username", help="username")
-argParser.add_argument("--password", help="password")
-args = vars(argParser.parse_args())
+arg_parser = argparse.ArgumentParser()
+arg_parser.add_argument('--username', default=None, required=False)
+arg_parser.add_argument('--password', default=None, required=False)
+args = arg_parser.parse_args()
 
 s = requests.Session()
 ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0"
@@ -18,11 +18,11 @@ password = ""
 g_conf = {}
 
 
-def get_input(name, txt):
-    if args[name]:
-        return args[name]
+def get_input(var_name, input_txt):
+    if auto_input := getattr(args, var_name, None):
+        return auto_input
     else:
-        input(txt)
+        return input(f"{input_txt}: ")
 
 
 if username == "" or password == "":
